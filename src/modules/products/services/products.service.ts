@@ -57,4 +57,25 @@ export class ProductsService {
       })
       .getMany();
   }
+
+  /**
+   * Busca productos en todos los campos (title, brand, description)
+   * Búsqueda unificada que encuentra coincidencias parciales en cualquier campo
+   */
+  async searchAcrossAllFields(query: string): Promise<Product[]> {
+    if (!query?.trim()) return [];
+
+    const searchPattern = `%${query.trim()}%`;
+    
+    return this.productRepository
+      .createQueryBuilder('product')
+      .where(
+        'product.title ILIKE :pattern OR ' +
+        'product.brand ILIKE :pattern OR ' + 
+        'product.description ILIKE :pattern',
+        { pattern: searchPattern }
+      )
+      .orderBy('product.id', 'ASC')
+      .getMany();
+  }
 }
