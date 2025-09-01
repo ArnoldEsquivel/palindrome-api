@@ -22,7 +22,9 @@ export class PalindromeService {
   // Evalúa si un texto es palíndromo después de normalización
   isPalindrome(text: string): boolean {
     const normalized = this.normalizeForPalindrome(text);
-    if (normalized.length === 0) return false;
+    
+    // Los palíndromos deben tener al menos 3 caracteres para aplicar descuento
+    if (normalized.length < 3) return false;
     
     return normalized === normalized.split('').reverse().join('');
   }
