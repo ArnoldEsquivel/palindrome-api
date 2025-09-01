@@ -15,13 +15,16 @@ export class SearchService {
   async search(query: string): Promise<SearchResponseDto> {
     const trimmedQuery = (query || '').trim();
     
-    // Validación básica (class-validator maneja lo principal)
+    // Si no hay query, devolver todos los productos
     if (!trimmedQuery) {
+      const allProducts = await this.productsService.findAll({ limit: 100, offset: 0 });
+      const items = allProducts.products.map(product => this.mapProductToItem(product, false));
+      
       return {
         query: '',
         isPalindrome: false,
-        items: [],
-        totalItems: 0,
+        items,
+        totalItems: items.length,
       };
     }
     

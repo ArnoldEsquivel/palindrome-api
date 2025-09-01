@@ -1,4 +1,4 @@
-import { Controller, Get, Query, HttpException, HttpStatus, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Query, HttpException, HttpStatus } from '@nestjs/common';
 
 import { SearchResponseDto } from '../dto/search-response.dto';
 import { SearchService } from '../services/search.service';
@@ -10,16 +10,8 @@ export class SearchController {
 
   @Get('search')
   async search(@Query() queryParams: any): Promise<SearchResponseDto> {
-    // Validación manual del parámetro con nombre más claro
-    const searchTerm = queryParams.q || queryParams.searchTerm;
-
-    if (!searchTerm) {
-      throw new BadRequestException({
-        message: 'El parámetro de búsqueda "q" es requerido',
-        error: 'Bad Request',
-        statusCode: 400,
-      });
-    }
+    // Hacer el parámetro de búsqueda opcional
+    const searchTerm = queryParams.q || queryParams.searchTerm || '';
 
     // Crear DTO para validación adicional si es necesario
     const searchDto = new SearchQueryDto();
