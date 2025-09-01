@@ -30,19 +30,10 @@ export class SearchService {
     
     const isPalindrome = this.palindromeService.isPalindrome(trimmedQuery);
     
-    let products: Product[] = [];
+    // Búsqueda unificada en todos los campos (title, brand, description)
+    const products = await this.productsService.searchAcrossAllFields(trimmedQuery);
 
-    // 1. Intentar búsqueda por título exacto (prevalece)
-    const exactProduct = await this.productsService.findByExactTitle(trimmedQuery);
-    if (exactProduct) {
-      products = [exactProduct];
-    } else if (trimmedQuery.length > 3) {
-      // 2. Si no hay match exacto y query > 3, buscar en brand/description
-      products = await this.productsService.searchByBrandOrDescriptionContains(trimmedQuery);
-    }
-    // 3. Si query <= 3 y no hay match exacto, products queda como []
-
-    // Mapea productos aplicando descuento si es palíndromo
+    // Mapea productos aplicando descuento si la query es palíndromo
     const items = products.map(product => this.mapProductToItem(product, isPalindrome));
 
     return {
