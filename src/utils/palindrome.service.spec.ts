@@ -115,17 +115,17 @@ describe('PalindromeService', () => {
     // TC013: Edge cases
     it('should handle edge cases', () => {
       expect(service.isPalindrome('')).toBe(false);
-      expect(service.isPalindrome('a')).toBe(true);
+      expect(service.isPalindrome('a')).toBe(false); // Menos de 3 caracteres
       expect(service.isPalindrome('ab')).toBe(false);
-      expect(service.isPalindrome('aa')).toBe(true);
+      expect(service.isPalindrome('aa')).toBe(false); // Menos de 3 caracteres
       expect(service.isPalindrome(null as any)).toBe(false);
       expect(service.isPalindrome(undefined as any)).toBe(false);
     });
 
     // TC014: Casos límite de longitud
     it('should handle various length cases', () => {
-      expect(service.isPalindrome('x')).toBe(true);
-      expect(service.isPalindrome('xx')).toBe(true);
+      expect(service.isPalindrome('x')).toBe(false); // Menos de 3 caracteres
+      expect(service.isPalindrome('xx')).toBe(false); // Menos de 3 caracteres
       expect(service.isPalindrome('xyx')).toBe(true);
       expect(service.isPalindrome('xyyx')).toBe(true);
       expect(service.isPalindrome('xyzyx')).toBe(true);

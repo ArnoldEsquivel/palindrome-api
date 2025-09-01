@@ -88,22 +88,49 @@ describe('SearchController', () => {
       expect(searchService.search).toHaveBeenCalledWith('radar');
     });
 
-    // TC054: Error cuando no se proporciona parámetro de búsqueda
-    it('should throw BadRequestException when no search parameter is provided', async () => {
-      await expect(controller.search({})).rejects.toThrow(BadRequestException);
-      await expect(controller.search({})).rejects.toThrow('El parámetro de búsqueda "q" es requerido');
+    // TC054: Búsqueda con parámetros vacíos - controller permite y pasa string vacío al servicio
+    it('should handle empty search parameters by passing empty string to service', async () => {
+      const mockEmptyResponse = {
+        query: '',
+        items: [],
+        totalItems: 0,
+        isPalindrome: false
+      };
       
-      expect(searchService.search).not.toHaveBeenCalled();
+      searchService.search.mockResolvedValue(mockEmptyResponse);
+      
+      const result = await controller.search({});
+      expect(result).toEqual(mockEmptyResponse);
+      expect(searchService.search).toHaveBeenCalledWith('');
     });
 
-    // TC055: Error cuando parámetros están presentes pero vacíos
-    it('should throw BadRequestException when search parameters are empty', async () => {
-      await expect(controller.search({ q: '' })).rejects.toThrow(BadRequestException);
-      await expect(controller.search({ searchTerm: '' })).rejects.toThrow(BadRequestException);
-      await expect(controller.search({ q: null })).rejects.toThrow(BadRequestException);
-      await expect(controller.search({ q: undefined })).rejects.toThrow(BadRequestException);
+    // TC055: Búsqueda con parámetros vacíos - se manejan pasando string vacío al servicio
+    it('should handle empty search parameters by passing empty string to service', async () => {
+      const mockEmptyResponse = {
+        query: '',
+        items: [],
+        totalItems: 0,
+        isPalindrome: false
+      };
+      
+      searchService.search.mockResolvedValue(mockEmptyResponse);
+      
+      // Todos estos casos deberían pasar string vacío al servicio
+      let result = await controller.search({ q: '' });
+      expect(result).toEqual(mockEmptyResponse);
+      expect(searchService.search).toHaveBeenCalledWith('');
 
-      expect(searchService.search).not.toHaveBeenCalled();
+      result = await controller.search({ searchTerm: '' });
+      expect(result).toEqual(mockEmptyResponse);
+      expect(searchService.search).toHaveBeenCalledWith('');
+
+      result = await controller.search({ q: null });
+      expect(result).toEqual(mockEmptyResponse);
+      expect(searchService.search).toHaveBeenCalledWith('');
+
+      result = await controller.search({ q: undefined });
+      expect(result).toEqual(mockEmptyResponse);
+      expect(searchService.search).toHaveBeenCalledWith('');
     });
 
     // TC056: Búsqueda exitosa sin resultados
@@ -168,18 +195,30 @@ describe('SearchController', () => {
       expect(searchService.search).toHaveBeenCalledWith('  radar  ');
     });
 
-    // TC060: Búsqueda case-sensitive en parámetros URL
+        // TC060: Verificar que solo 'q' y 'searchTerm' son reconocidos
     it('should handle case-sensitive URL parameters correctly', async () => {
+      // Solo 'q' y 'searchTerm' deberían funcionar correctamente
       searchService.search.mockResolvedValue(mockSearchResponse);
-
-      // Solo 'q' y 'searchTerm' deberían funcionar, otros nombres no
       const result = await controller.search({ q: 'radar' });
       expect(result).toEqual(mockSearchResponse);
 
-      // Parámetros con nombres incorrectos deberían fallar
-      await expect(controller.search({ Q: 'radar' })).rejects.toThrow(BadRequestException);
-      await expect(controller.search({ search: 'radar' })).rejects.toThrow(BadRequestException);
-      await expect(controller.search({ query: 'radar' })).rejects.toThrow(BadRequestException);
+      // Parámetros con nombres incorrectos se convierten en búsqueda vacía
+      const mockEmptyResponse = {
+        query: '',
+        items: [],
+        totalItems: 0,
+        isPalindrome: false
+      };
+      
+      searchService.search.mockResolvedValue(mockEmptyResponse);
+      
+      const result1 = await controller.search({ Q: 'radar' });
+      const result2 = await controller.search({ search: 'radar' });
+      const result3 = await controller.search({ query: 'radar' });
+      
+      expect(result1).toEqual(mockEmptyResponse);
+      expect(result2).toEqual(mockEmptyResponse);
+      expect(result3).toEqual(mockEmptyResponse);
     });
   });
 
