@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
 import { Product } from '../entities/product.entity';
+import { PaginationOptions, PaginatedProducts } from '../interfaces';
 
 @Injectable()
 export class ProductsService {
@@ -10,6 +11,25 @@ export class ProductsService {
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
   ) {}
+
+  /**
+   * Obtiene todos los productos con paginación opcional
+   */
+  async findAll(options: PaginationOptions): Promise<PaginatedProducts> {
+    const { limit, offset } = options;
+
+    const [products, totalItems] = await this.productRepository
+      .createQueryBuilder('product')
+      .orderBy('product.id', 'ASC')
+      .limit(limit)
+      .offset(offset)
+      .getManyAndCount();
+
+    return {
+      products,
+      totalItems,
+    };
+  }
 
   // Busca producto por título exacto (case-insensitive permitido)
   async findByExactTitle(title: string): Promise<Product | null> {
